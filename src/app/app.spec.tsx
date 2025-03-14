@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 
 import App from './app';
 
@@ -8,10 +8,21 @@ describe('App', () => {
     expect(baseElement).toBeTruthy();
   });
 
-  it('should have a greeting as the title', () => {
-    const { getAllByText } = render(<App />);
-    expect(
-      getAllByText(new RegExp('Welcome react-calc', 'gi')).length > 0
-    ).toBeTruthy();
+  it('should have "React Calculator" as the title', () => {
+    render(<App />);
+    const titleElement = screen.getByText('React Calculator');
+    expect(titleElement).toBeTruthy();
+  });
+
+  it('should render the theme selector', () => {
+    render(<App />);
+    const themeSelector = screen.getByLabelText('Select theme');
+    expect(themeSelector).toBeTruthy();
+  });
+
+  it('should render the calculator component', () => {
+    render(<App />);
+    const calculator = screen.getByTestId('calculator');
+    expect(calculator).toBeTruthy();
   });
 });

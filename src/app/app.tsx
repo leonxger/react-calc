@@ -1,34 +1,15 @@
 // apps/calculator/src/app/app.tsx
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import './app.scss';
-import Calculator from './apps/calculator/src/app/components/Calculator/Calculator';
+import Calculator from './components/Calculator/Calculator';
+import { useTheme } from './hooks/useTheme';
+import { Theme } from './types';
 
-// Type for theme
-type Theme = 'light' | 'dark' | 'system';
-
+/**
+ * Main App component
+ */
 export function App() {
-  const [theme, setTheme] = useState<Theme>('system');
-
-  // Apply theme to body for global theming
-  useEffect(() => {
-    document.body.classList.remove('light-theme', 'dark-theme', 'system-theme');
-    document.body.classList.add(`${theme}-theme`);
-
-    // Store preference
-    localStorage.setItem('calculator-theme', theme);
-  }, [theme]);
-
-  // Load saved theme preference
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('calculator-theme') as Theme | null;
-    if (savedTheme) {
-      setTheme(savedTheme);
-    }
-  }, []);
-
-  const handleThemeChange = (newTheme: Theme) => {
-    setTheme(newTheme);
-  };
+  const { theme, handleThemeChange } = useTheme('calculator-theme', 'system');
 
   return (
     <div className={`app ${theme}-theme`}>
@@ -41,6 +22,7 @@ export function App() {
             value={theme}
             onChange={(e) => handleThemeChange(e.target.value as Theme)}
             className="theme-select"
+            aria-label="Select theme"
           >
             <option value="system">System</option>
             <option value="light">Light</option>
@@ -52,7 +34,7 @@ export function App() {
         <Calculator />
       </main>
       <footer className="app-footer">
-        <p>Built with React {React.version} and Nx</p>
+        <p>Built with React {React.version}</p>
       </footer>
     </div>
   );

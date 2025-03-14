@@ -1,0 +1,367 @@
+@use "sass:color";
+
+// Variables
+$primary-color: #4285f4;
+$primary-hover: #2b76e5;
+$background-light: #f0f0f0;
+$display-bg-light: #202124;
+$button-bg-light: white;
+$button-hover-light: #f1f3f4;
+$button-active-light: #e8eaed;
+$operation-bg-light: #f1f3f4;
+$keypad-gap-light: #dfe1e5;
+
+$background-dark: #1c1c1c;
+$display-bg-dark: #2c2c2c;
+$button-bg-dark: #333333;
+$button-hover-dark: #4a4b4d;
+$button-active-dark: #4a4b4d;
+$operation-bg-dark: #343538;
+$operation-color-dark: #8ab4f8;
+
+// 3D Variables
+$calculator-depth: 12px;
+$button-depth: 6px;
+$button-press-depth: 2px;
+
+// Mixins
+@mixin flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin focus-visible {
+  &:focus-visible {
+    position: relative;
+    z-index: 1;
+    outline: 2px solid $primary-color;
+    outline-offset: -2px;
+  }
+}
+
+@mixin transition {
+  transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
+}
+
+@mixin button-3d($bg-color, $depth) {
+  background-color: $bg-color;
+  box-shadow: 
+    0 $depth 0 color.adjust($bg-color, $lightness: -15%),
+    0 $depth*1.5 $depth rgba(0, 0, 0, 0.15);
+  transform: translateY(0);
+  transition: transform 0.1s, box-shadow 0.1s;
+  
+  &:active {
+    transform: translateY($depth - $button-press-depth);
+    box-shadow: 
+      0 $button-press-depth 0 color.adjust($bg-color, $lightness: -15%),
+      0 $button-press-depth*1.5 $button-press-depth rgba(0, 0, 0, 0.15);
+  }
+}
+
+// Calculator wrapper
+.calculator-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 2rem auto;
+  max-width: 400px;
+  perspective: 1500px;
+  user-select: none;
+}
+
+.calculator-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 350px;
+  margin-bottom: 1rem;
+  
+  .rotation-hint {
+    font-size: 0.8rem;
+    color: #666;
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+// Base styles
+.calculator {
+  width: 350px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 
+    0 20px 50px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(0, 0, 0, 0.05),
+    0 $calculator-depth 0 color.adjust($background-light, $lightness: -15%);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  outline: none;
+  background-color: $background-light;
+  transform-style: preserve-3d;
+  position: relative;
+  @include transition;
+  
+  &:focus {
+    box-shadow: 
+      0 0 0 3px rgba(66, 153, 225, 0.5), 
+      0 20px 50px rgba(0, 0, 0, 0.25),
+      0 $calculator-depth 0 color.adjust($background-light, $lightness: -15%);
+  }
+  
+  // 3D edges - using actual elements instead of pseudo-elements
+  .edge-top, .edge-bottom, .edge-left, .edge-right {
+    position: absolute;
+    background-color: color.adjust($background-light, $lightness: -10%);
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .edge-top, .edge-bottom {
+    width: 100%;
+    height: $calculator-depth;
+    left: 0;
+    transform-origin: center top;
+  }
+  
+  .edge-left, .edge-right {
+    width: $calculator-depth;
+    height: 100%;
+    top: 0;
+    transform-origin: left center;
+  }
+  
+  .edge-top {
+    top: 0;
+    transform: rotateX(-90deg);
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+  }
+  
+  .edge-bottom {
+    bottom: 0;
+    transform-origin: center bottom;
+    transform: rotateX(90deg);
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+  }
+  
+  .edge-left {
+    left: 0;
+    transform: rotateY(90deg);
+  }
+  
+  .edge-right {
+    right: 0;
+    transform-origin: right center;
+    transform: rotateY(-90deg);
+  }
+}
+
+.display {
+  background-color: $display-bg-light;
+  color: white;
+  text-align: right;
+  padding: 1.5rem;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  position: relative;
+  z-index: 1;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+  @include transition;
+  
+  .previous-operand {
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 1.25rem;
+    min-height: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .current-operand {
+    font-size: 2.5rem;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.keypad {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-gap: 8px;
+  padding: 12px;
+  background-color: $background-light;
+  position: relative;
+  z-index: 0;
+}
+
+button {
+  border: none;
+  font-size: 1.5rem;
+  padding: 1.25rem 0;
+  cursor: pointer;
+  font-weight: 500;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+  @include focus-visible;
+  @include button-3d($button-bg-light, $button-depth);
+  
+  &:hover {
+    background-color: $button-hover-light;
+  }
+  
+  &.operation {
+    @include button-3d($operation-bg-light, $button-depth);
+    color: $primary-color;
+    font-weight: 700;
+    
+    &:hover {
+      background-color: $button-active-light;
+    }
+    
+    &.equals {
+      @include button-3d($primary-color, $button-depth);
+      color: white;
+      
+      &:hover {
+        background-color: $primary-hover;
+      }
+    }
+  }
+  
+  &.span-two {
+    grid-column: span 2;
+  }
+}
+
+// Dark theme
+body.dark-theme .calculator {
+  background-color: $background-dark;
+  box-shadow: 
+    0 20px 50px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    0 $calculator-depth 0 color.adjust($background-dark, $lightness: -15%);
+  
+  .edge-top, .edge-bottom, .edge-left, .edge-right {
+    background-color: color.adjust($background-dark, $lightness: -10%);
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+  }
+  
+  .display {
+    background-color: $display-bg-dark;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.4);
+  }
+  
+  .keypad {
+    background-color: $background-dark;
+  }
+  
+  button {
+    @include button-3d($button-bg-dark, $button-depth);
+    color: white;
+    
+    &:hover {
+      background-color: $button-hover-dark;
+    }
+    
+    &.operation {
+      @include button-3d($operation-bg-dark, $button-depth);
+      color: $operation-color-dark;
+      
+      &:hover {
+        background-color: $button-hover-dark;
+      }
+      
+      &.equals {
+        @include button-3d($operation-color-dark, $button-depth);
+        color: $background-dark;
+        
+        &:hover {
+          background-color: color.adjust($operation-color-dark, $lightness: -5%);
+        }
+      }
+    }
+  }
+}
+
+// System preference dark mode
+@media (prefers-color-scheme: dark) {
+  body.system-theme .calculator {
+    background-color: $background-dark;
+    box-shadow: 
+      0 20px 50px rgba(0, 0, 0, 0.5),
+      0 0 0 1px rgba(255, 255, 255, 0.05),
+      0 $calculator-depth 0 color.adjust($background-dark, $lightness: -15%);
+    
+    .edge-top, .edge-bottom, .edge-left, .edge-right {
+      background-color: color.adjust($background-dark, $lightness: -10%);
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    .display {
+      background-color: $display-bg-dark;
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.4);
+    }
+    
+    .keypad {
+      background-color: $background-dark;
+    }
+    
+    button {
+      @include button-3d($button-bg-dark, $button-depth);
+      color: white;
+      
+      &:hover {
+        background-color: $button-hover-dark;
+      }
+      
+      &.operation {
+        @include button-3d($operation-bg-dark, $button-depth);
+        color: $operation-color-dark;
+        
+        &:hover {
+          background-color: $button-hover-dark;
+        }
+        
+        &.equals {
+          @include button-3d($operation-color-dark, $button-depth);
+          color: $background-dark;
+          
+          &:hover {
+            background-color: color.adjust($operation-color-dark, $lightness: -5%);
+          }
+        }
+      }
+    }
+  }
+}
+
+// Responsive styles
+@media (max-width: 400px) {
+  .calculator-wrapper, .calculator-controls {
+    width: 100%;
+  }
+  
+  .calculator {
+    width: 100%;
+    border-radius: 12px;
+  }
+  
+  button {
+    padding: 1.5rem 0;
+  }
+}
+
+// Accessibility enhancements
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+} 
