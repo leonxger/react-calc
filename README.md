@@ -2,7 +2,7 @@
 
 A modern, interactive 3D calculator built with React and TypeScript. This calculator features a sleek design with 3D rotation capabilities, theme switching, and keyboard support.
 
-![React Calculator](https://via.placeholder.com/800x400?text=React+Calculator)
+![React Calculator](./react-calc.png)
 
 ## Features
 
@@ -22,7 +22,7 @@ A modern, interactive 3D calculator built with React and TypeScript. This calcul
 
 1. Clone the repository:
 ```sh
-git clone https://github.com/yourusername/react-calc.git
+git clone https://github.com/leonxger/react-calc
 cd react-calc
 ```
 
